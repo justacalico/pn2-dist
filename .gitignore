@@ -1,0 +1,6 @@
+*.img
+*.tar.xz
+*.apk
+dist-out/
+release-assets/
+SHA256SUMS.txt
