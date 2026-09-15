@@ -11,7 +11,7 @@ on:
           - release
           - beta
           - alpha
-        default: release
+        default: alpha
 
 env:
   PN2_ROOT: /home/runner/pn2
