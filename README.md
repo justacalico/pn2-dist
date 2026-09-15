@@ -11,16 +11,17 @@ the package registry, so they never expire.
 
 ## What a build does
 
-1. `scripts/fetch-inputs.sh` downloads the pinned input packages from this
-   project's package registry (the proprietary blobs - kept private, see
-   `overlay/PROPRIETARY-PVR.md` in the overlay repo) and clones the source
-   repos listed in `manifest.env`.
+1. `scripts/fetch-inputs.sh` downloads the pinned input packages from the
+   private `neosalsa/dist-inputs` package registry (the proprietary blobs -
+   kept private, see `overlay/PROPRIETARY-PVR.md` in the overlay repo) and
+   clones the source repos listed in `manifest.env`.
 2. `scripts/build-image.sh` runs the real `tools/build` chain on the runner:
    GSI xz -> simg2img -> build.prop -> overlay -> staged Pico stack ->
    fixes -> verify.
-3. Outputs land as sparse `system-pn2.img` / `system-pn2-full.img` on a
-   GitHub release, then on a same-named GitLab release via the
-   `github-release-sync` job.
+3. Outputs land as xz'd sparse `system-pn2.img.xz` / `system-pn2-full.img.xz`
+   on a GitHub release, then on a same-named GitLab release via the
+   `github-release-sync` job. Release assets are package-registry backed, so
+   they never expire and download without a login.
 
 ## Running a build
 
