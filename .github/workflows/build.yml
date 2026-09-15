@@ -2,6 +2,16 @@ name: build
 
 on:
   workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Release channel'
+        required: true
+        type: choice
+        options:
+          - release
+          - beta
+          - alpha
+        default: release
 
 env:
   PN2_ROOT: /home/runner/pn2
@@ -75,7 +85,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="v$(date -u +%Y.%m.%d)-r${GITHUB_RUN_NUMBER}"
+          CHANNEL="${{ github.event.inputs.channel }}"
+          case "$CHANNEL" in
+            alpha) PREFIX="alpha-"; PRE="--prerelease" ;;
+            beta)  PREFIX="beta-";  PRE="--prerelease" ;;
+            *)     PREFIX="";       PRE="" ;;
+          esac
+          TAG="${PREFIX}v$(date -u +%Y.%m.%d)-r${GITHUB_RUN_NUMBER}"
           {
             echo "LineageOS 17.1 system images for the Pico Neo 2 (A7B10)."
             echo
@@ -84,8 +100,9 @@ jobs:
             echo "- \`build-logs.tar.xz\` - every build step's notes/ log"
             echo
             echo "xz'd sparse images - \`unxz <img.xz>\`, then \`fastboot -S 128M flash system <img>\`."
+            echo "Channel: ${CHANNEL}"
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           } > dist-out/NOTES.md
           gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
             --title "PN2 images $TAG" --notes-file dist-out/NOTES.md \
-            dist-out/*
+            $PRE dist-out/*
