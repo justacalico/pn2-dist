@@ -48,7 +48,7 @@ github-dispatch:
     - chmod 600 ~/.ssh/id_ed25519
     - ssh-keyscan -t ed25519 github.com > ~/.ssh/known_hosts
   script:
-    - bash scripts/trigger-github-build.sh main HEAD
+    - CHANNEL="${CHANNEL:-release}" bash scripts/trigger-github-build.sh main HEAD
 
 github-release-sync:
   stage: release
