@@ -41,9 +41,10 @@ separate package so unchanged pieces are not re-uploaded.
 
 ## Flashing
 
-The release images are Android sparse images - flash them directly:
+The release images are xz'd Android sparse images - decompress, then flash:
 
 ```
+unxz system-pn2-full.img.xz
 fastboot oem pico unlock
 fastboot -S 128M flash system system-pn2-full.img
 ```

@@ -79,11 +79,11 @@ jobs:
           {
             echo "LineageOS 17.1 system images for the Pico Neo 2 (A7B10)."
             echo
-            echo "- \`system-pn2.img\` - clean: GSI + our fixes, no proprietary blobs"
-            echo "- \`system-pn2-full.img\` - full Pico stack, ready to flash"
+            echo "- \`system-pn2.img.xz\` - clean: GSI + our fixes, no proprietary blobs"
+            echo "- \`system-pn2-full.img.xz\` - full Pico stack, ready to flash"
             echo "- \`build-logs.tar.xz\` - every build step's notes/ log"
             echo
-            echo "Sparse images - \`fastboot -S 128M flash system <img>\`."
+            echo "xz'd sparse images - \`unxz <img.xz>\`, then \`fastboot -S 128M flash system <img>\`."
             echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           } > dist-out/NOTES.md
           gh release create "$TAG" -R "$GITHUB_REPOSITORY" \

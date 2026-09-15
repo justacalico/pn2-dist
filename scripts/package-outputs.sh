@@ -9,7 +9,10 @@ mkdir -p "$D"
 
 for n in system-pn2 system-pn2-full; do
   img2simg "$R/out/$n.img" "$D/$n.img"
-  echo "$n.img: $(stat -c%s "$R/out/$n.img") raw -> $(stat -c%s "$D/$n.img") sparse"
+  # GitHub release assets cap at 2G - the full sparse image is ~2.5G, so both
+  # ship xz'd (the usual GSI convention: unxz, then fastboot flash)
+  xz -1 -T0 "$D/$n.img"
+  echo "$n.img.xz: $(stat -c%s "$R/out/$n.img") raw -> $(stat -c%s "$D/$n.img.xz") sparse+xz"
 done
 
 tar -cJf "$D/build-logs.tar.xz" --exclude='*.so' -C "$R" notes
@@ -26,7 +29,7 @@ tar -cJf "$D/build-logs.tar.xz" --exclude='*.so' -C "$R" notes
   echo "source refs:"
   set | grep -E '^[A-Z]+_REF=' | sort | sed 's/^/  /'
   echo
-  (cd "$D" && sha256sum *.img)
+  (cd "$D" && sha256sum *.img.xz)
 } > "$D/build-manifest.txt"
 
 (cd "$D" && find . -type f ! -name SHA256SUMS.txt -exec sha256sum {} + | sort -k2 > SHA256SUMS.txt)
