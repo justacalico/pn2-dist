@@ -9,6 +9,7 @@ WORKFLOW="build.yml"
 
 REF="${1:-main}"
 PUSH_REF="${2:-}"
+CHANNEL="${CHANNEL:-release}"
 
 if [ -n "$PUSH_REF" ]; then
   echo "Pushing $PUSH_REF to GitHub branch $REF..."
@@ -18,8 +19,8 @@ if [ -n "$PUSH_REF" ]; then
 fi
 
 TS=$(( $(date +%s) - 60 ))
-echo "Triggering $WORKFLOW @ $REF"
-gh workflow run "$WORKFLOW" -R "$REPO" --ref "$REF"
+echo "Triggering $WORKFLOW @ $REF (channel: $CHANNEL)"
+gh workflow run "$WORKFLOW" -R "$REPO" --ref "$REF" -f channel="$CHANNEL"
 
 echo "Looking for run ID..."
 RUN_ID=""
