@@ -62,7 +62,7 @@ jobs:
         env:
           GL_DT_USER: ${{ secrets.GL_DT_USER }}
           GL_DT_TOKEN: ${{ secrets.GL_DT_TOKEN }}
-          GL_PROJECT_ID: "86495557"
+          GL_PROJECT_ID: "86500595"
         run: bash scripts/fetch-inputs.sh
 
       - name: build images
