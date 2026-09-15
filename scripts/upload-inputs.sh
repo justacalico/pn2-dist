@@ -10,7 +10,9 @@
 set -euo pipefail
 SRC="${PN2_SRC:-$HOME/PN2Lineage}"
 SELF="$(cd "$(dirname "$0")/.." && pwd)"
-PID="${GL_PROJECT_ID:-86495557}"
+# Inputs live in the private neosalsa/dist-inputs project so they stay
+# non-public while dist itself (and its release assets) are open.
+PID="${GL_PROJECT_ID:-86500595}"
 BASE="https://gitlab.com/api/v4/projects/$PID/packages/generic"
 : "${GL_TOKEN:?need a GitLab token with api scope}"
 
