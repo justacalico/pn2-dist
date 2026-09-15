@@ -9,10 +9,11 @@ stages:
   - build
   - release
 
+# Default to alpha so test runs don't pollute the release/beta channels.
 # Override CHANNEL when running a pipeline manually (web UI "Run pipeline"
-# -> Variables).  release / beta / alpha.  See scripts/trigger-github-build.sh.
+# -> Variables) to "release" or "beta" for a proper release.
 variables:
-  CHANNEL: "release"
+  CHANNEL: "alpha"
 
 github-sync:
   stage: sync
