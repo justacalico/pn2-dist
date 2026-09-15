@@ -12,7 +12,7 @@ stages:
 # Override CHANNEL when running a pipeline manually (web UI "Run pipeline"
 # -> Variables).  release / beta / alpha.  See scripts/trigger-github-build.sh.
 variables:
-  CHANNEL: "alpha"
+  CHANNEL: "release"
 
 github-sync:
   stage: sync
