@@ -29,7 +29,7 @@ github-sync:
       if [ -n "${CI_COMMIT_TAG:-}" ]; then
         git push -f github "$CI_COMMIT_TAG"
       else
-        git push github HEAD:main
+        git push github HEAD:refs/heads/main
       fi
 
 github-dispatch:
