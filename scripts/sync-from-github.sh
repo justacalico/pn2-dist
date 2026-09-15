@@ -8,7 +8,9 @@ export PATH="$HOME/.local/bin:$PATH"
 cd "${CI_PROJECT_DIR:-$PWD}"
 
 REPO="justacalico/pn2-dist"
-RELEASE_TAG="${RELEASE_TAG:-$(gh release view -R "$REPO" --json tagName -q .tagName)}"
+# gh release view defaults to the "latest" (non-prerelease) release, which
+# skips alpha/beta tags.  list gets every release newest-first instead.
+RELEASE_TAG="${RELEASE_TAG:-$(gh release list -R "$REPO" --limit 1 --json tagName --jq '.[0].tagName')}"
 echo "Syncing GitHub release $RELEASE_TAG -> $CI_PROJECT_PATH"
 
 rm -rf release-assets SHA256SUMS.txt
