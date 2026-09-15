@@ -36,20 +36,20 @@ step "adb props into gsi_raw"
 "$SELF/scripts/patch-gsi-props.sh"
 
 step "clean image: overlay into GSI (143)"
-"$T/143_build_image2.sh" || true
+bash "$T/143_build_image2.sh" || true
 ran 143_build.txt "BUILD OK"
 
 step "LoadingRes stub image"
 "$SELF/scripts/make-loadingres-img.sh"
 
 step "stage Pico stack (144)"
-"$T/144_stage_full.sh" || true
+bash "$T/144_stage_full.sh" || true
 ran 144_stage.txt "DONE"
 [ -d "$R/fullstage/media/LoadingRes" ] || fail "LoadingRes not staged"
 echo "  staged: $(find "$R/fullstage" -type f | wc -l) files, $(du -sh "$R/fullstage" | cut -f1)"
 
 step "grow + inject stack (145)"
-"$T/145_build_full.sh" || true
+bash "$T/145_build_full.sh" || true
 ran 145_full.txt "fits"
 
 step "vrhome apk"
@@ -59,26 +59,26 @@ BT=$(ls -d "${ANDROID_SDK_ROOT:-$ANDROID_HOME}"/build-tools/* | sort -V | tail -
   || fail "vrhome.apk is not platform-signed"
 
 step "overlay fixes + patched libs + apps (267)"
-"$T/267_build_full.sh" || true
+bash "$T/267_build_full.sh" || true
 ran 267_build.txt "BUILD OK"
 
 step "DSP stack (300)"
-"$T/300_img_dsp.sh" || true
+bash "$T/300_img_dsp.sh" || true
 ran 300_img_dsp.txt "DSP STACK ADDED OK"
 
 step "mdsprpc (301)"
-"$T/301_mdsp_img.sh"
+bash "$T/301_mdsp_img.sh"
 
 step "QVR clients (352)"
-"$T/352_img_qvrclient.sh" || true
+bash "$T/352_img_qvrclient.sh" || true
 ran 352_img_qvrclient.txt "QVR CLIENT ADDED OK"
 
 step "fan daemon (373)"
-"$T/373_img_fan.sh" || true
+bash "$T/373_img_fan.sh" || true
 ran 373_img_fan.txt "FAN DAEMON ADDED OK"
 
 step "verify (268)"
-"$T/268_verify_img.sh" || true
+bash "$T/268_verify_img.sh" || true
 tail -30 "$N/268_verify.txt"
 
 step "final assertions"
