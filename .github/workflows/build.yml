@@ -1,0 +1,89 @@
+name: build
+
+on:
+  workflow_dispatch:
+
+env:
+  PN2_ROOT: /home/runner/pn2
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    concurrency:
+      group: pn2-build
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /opt/az \
+            /usr/local/share/boost /opt/microsoft /usr/share/swift* \
+            "$ANDROID_HOME/system-images" "$ANDROID_HOME/emulator" \
+            "$ANDROID_HOME/sources" || true
+          sudo docker image prune -af >/dev/null 2>&1 || true
+          df -h /
+
+      - name: host tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xz-utils e2fsprogs unzip
+          sudo apt-get install -y --no-install-recommends simg2img || \
+            sudo apt-get install -y --no-install-recommends android-sdk-libsparse-utils
+          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs; do
+            command -v "$t" || { echo "missing $t"; exit 1; }
+          done
+
+      - name: android-29 platform
+        run: |
+          SDKM=$(ls "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | tail -1)
+          if [ ! -d "$ANDROID_HOME/platforms/android-29" ]; then
+            yes | sudo "$SDKM" "platforms;android-29"
+          fi
+          ls "$ANDROID_HOME/platforms"
+          ls "$ANDROID_HOME/ndk"
+          ls "$ANDROID_HOME/build-tools" | tail -3
+
+      - name: clone source repos
+        run: |
+          set -e
+          . manifest.env
+          mkdir -p "$PN2_ROOT"/{notes,out}
+          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF"; do
+            r=${pair%%:*}; ref=${pair##*:}
+            git clone --depth 1 -b "$ref" "https://gitlab.com/neosalsa/$r.git" "$PN2_ROOT/$r"
+          done
+
+      - name: input packages
+        env:
+          GL_DT_USER: ${{ secrets.GL_DT_USER }}
+          GL_DT_TOKEN: ${{ secrets.GL_DT_TOKEN }}
+          GL_PROJECT_ID: "86495557"
+        run: bash scripts/fetch-inputs.sh
+
+      - name: build images
+        run: bash scripts/build-image.sh
+
+      - name: package outputs
+        run: bash scripts/package-outputs.sh dist-out
+
+      - name: github release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$(date -u +%Y.%m.%d)-r${GITHUB_RUN_NUMBER}"
+          {
+            echo "LineageOS 17.1 system images for the Pico Neo 2 (A7B10)."
+            echo
+            echo "- \`system-pn2.img\` - clean: GSI + our fixes, no proprietary blobs"
+            echo "- \`system-pn2-full.img\` - full Pico stack, ready to flash"
+            echo "- \`build-logs.tar.xz\` - every build step's notes/ log"
+            echo
+            echo "Sparse images - \`fastboot -S 128M flash system <img>\`."
+            echo "Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } > dist-out/NOTES.md
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" \
+            --title "PN2 images $TAG" --notes-file dist-out/NOTES.md \
+            dist-out/*
