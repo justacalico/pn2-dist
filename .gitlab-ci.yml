@@ -9,6 +9,11 @@ stages:
   - build
   - release
 
+# Override CHANNEL when running a pipeline manually (web UI "Run pipeline"
+# -> Variables).  release / beta / alpha.  See scripts/trigger-github-build.sh.
+variables:
+  CHANNEL: "release"
+
 github-sync:
   stage: sync
   image: alpine:3.20
