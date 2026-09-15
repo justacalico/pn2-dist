@@ -22,12 +22,12 @@ tar -cJf "$D/build-logs.tar.xz" --exclude='*.so' -C "$R" notes
   echo
   . "$SELF/manifest.env"
   echo "input pins:"
-  env | grep -E '^PIN_' | sort | sed 's/^/  /'
+  set | grep -E '^PIN_' | sort | sed 's/^/  /'
   echo "source refs:"
-  env | grep -E '_(REF)=' | grep -vE '^PIN_' | sort | sed 's/^/  /'
+  set | grep -E '^[A-Z]+_REF=' | sort | sed 's/^/  /'
   echo
   (cd "$D" && sha256sum *.img)
 } > "$D/build-manifest.txt"
 
-(cd "$D" && sha256sum * > SHA256SUMS.txt 2>/dev/null) || true
+(cd "$D" && find . -type f ! -name SHA256SUMS.txt -exec sha256sum {} + | sort -k2 > SHA256SUMS.txt)
 ls -l "$D"
