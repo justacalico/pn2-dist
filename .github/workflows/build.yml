@@ -44,7 +44,9 @@ jobs:
           sudo apt-get install -y --no-install-recommends xz-utils e2fsprogs unzip
           sudo apt-get install -y --no-install-recommends simg2img || \
             sudo apt-get install -y --no-install-recommends android-sdk-libsparse-utils
-          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs; do
+          sudo apt-get install -y --no-install-recommends ninja-build cmake python3-pip
+          sudo pip3 install meson
+          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs meson ninja cmake javac; do
             command -v "$t" || { echo "missing $t"; exit 1; }
           done
 
@@ -54,6 +56,11 @@ jobs:
           if [ ! -d "$ANDROID_HOME/platforms/android-29" ]; then
             yes | sudo "$SDKM" "platforms;android-29"
           fi
+          # pn2xr runtime-apk pins build-tools 35.0.0 + android-35
+          [ -d "$ANDROID_HOME/platforms/android-35" ] || \
+            yes | sudo "$SDKM" "platforms;android-35"
+          [ -d "$ANDROID_HOME/build-tools/35.0.0" ] || \
+            yes | sudo "$SDKM" "build-tools;35.0.0"
           ls "$ANDROID_HOME/platforms"
           ls "$ANDROID_HOME/ndk"
           ls "$ANDROID_HOME/build-tools" | tail -3
@@ -63,7 +70,7 @@ jobs:
           set -e
           . manifest.env
           mkdir -p "$PN2_ROOT"/{notes,out}
-          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF"; do
+          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF" "pn2xr:$PN2XR_REF"; do
             r=${pair%%:*}; ref=${pair##*:}
             git clone --depth 1 -b "$ref" "https://gitlab.com/neosalsa/$r.git" "$PN2_ROOT/$r"
           done
