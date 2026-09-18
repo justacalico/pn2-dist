@@ -15,6 +15,10 @@ step() { echo; echo "######## $* ########"; }
 fail() { echo "FAILED: $*" >&2; exit 1; }
 ran() { # ran <logfile> <marker>
   local log="$N/$1" mark="$2"
+  grep -qiE "error|failed|missing|not found" "$log" 2>/dev/null && {
+    echo "--- $log (errors) ---"
+    grep -niE "error|failed|missing|not found" "$log" | tail -30
+  }
   echo "--- $log (tail) ---"
   tail -25 "$log" 2>/dev/null || true
   grep -q "$mark" "$log" || fail "marker '$mark' not in $log"

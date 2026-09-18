@@ -44,9 +44,11 @@ jobs:
           sudo apt-get install -y --no-install-recommends xz-utils e2fsprogs unzip
           sudo apt-get install -y --no-install-recommends simg2img || \
             sudo apt-get install -y --no-install-recommends android-sdk-libsparse-utils
-          sudo apt-get install -y --no-install-recommends ninja-build cmake python3-pip
+          sudo apt-get install -y --no-install-recommends ninja-build cmake python3-pip \
+            python3-mako flex bison zip pkg-config
           sudo pip3 install meson
-          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs meson ninja cmake javac; do
+          python3 -c "import mako" || sudo pip3 install mako
+          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs meson ninja cmake javac zip; do
             command -v "$t" || { echo "missing $t"; exit 1; }
           done
 
