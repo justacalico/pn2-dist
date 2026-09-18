@@ -45,10 +45,10 @@ jobs:
           sudo apt-get install -y --no-install-recommends simg2img || \
             sudo apt-get install -y --no-install-recommends android-sdk-libsparse-utils
           sudo apt-get install -y --no-install-recommends ninja-build cmake python3-pip \
-            python3-mako flex bison zip pkg-config
+            python3-mako flex bison zip pkg-config glslang-tools
           sudo pip3 install meson
           python3 -c "import mako" || sudo pip3 install mako
-          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs meson ninja cmake javac zip; do
+          for t in simg2img img2simg debugfs e2fsck mke2fs resize2fs dumpe2fs meson ninja cmake javac zip glslangValidator; do
             command -v "$t" || { echo "missing $t"; exit 1; }
           done
 
