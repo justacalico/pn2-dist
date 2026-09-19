@@ -59,7 +59,7 @@ ran 145_full.txt "fits"
 step "vrhome apk"
 make -C "$R/vrhome" apk
 BT=$(ls -d "${ANDROID_SDK_ROOT:-$ANDROID_HOME}"/build-tools/* | sort -V | tail -1)
-"$BT/apksigner" verify --print-certs "$R/vrhome/out/vrhome.apk" | grep -q "CN=Android" \
+"$BT/apksigner" verify --print-certs "$R/vrhome/out/vrhome.apk" | grep -q "CN=PN2" \
   || fail "vrhome.apk is not platform-signed"
 
 step "overlay fixes + patched libs + apps (267)"
