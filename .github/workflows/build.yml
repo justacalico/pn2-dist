@@ -78,7 +78,7 @@ jobs:
           tar -xJf /tmp/flutter.tar.xz -C "$HOME"
           echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
           git config --global --add safe.directory "$HOME/flutter"
-          "$HOME/flutter/bin/flutter" config --no-analytics --android-sdk-root "$ANDROID_HOME"
+          "$HOME/flutter/bin/flutter" config --no-analytics --android-sdk "$ANDROID_HOME"
           "$HOME/flutter/bin/flutter" --version
 
       - name: clone source repos
