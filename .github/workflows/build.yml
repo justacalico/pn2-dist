@@ -80,6 +80,16 @@ jobs:
           git config --global --add safe.directory "$HOME/flutter"
           "$HOME/flutter/bin/flutter" config --no-analytics --android-sdk "$ANDROID_HOME"
           "$HOME/flutter/bin/flutter" --version
+          # earlier sudo steps leave $HOME/.config root-owned, and AGP mints
+          # its debug keystore under .config/.android - own it and pre-make
+          # the keystore so the release build never needs to
+          sudo chown -R "$(id -u):$(id -g)" "$HOME/.config" 2>/dev/null || true
+          mkdir -p "$HOME/.config/.android"
+          [ -f "$HOME/.config/.android/debug.keystore" ] || \
+            keytool -genkeypair -v -keystore "$HOME/.config/.android/debug.keystore" \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10950 \
+              -dname "CN=Android Debug,O=Android,C=US" >/dev/null
 
       - name: clone source repos
         run: |
