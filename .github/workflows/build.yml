@@ -101,6 +101,14 @@ jobs:
       - name: build images
         run: bash scripts/build-image.sh
 
+      - name: build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: /home/runner/pn2/notes/
+          retention-days: 7
+
       - name: package outputs
         run: bash scripts/package-outputs.sh dist-out
 
