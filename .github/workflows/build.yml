@@ -96,7 +96,7 @@ jobs:
           set -e
           . manifest.env
           mkdir -p "$PN2_ROOT"/{notes,out}
-          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF" "pn2xr:$PN2XR_REF" "applications/library:$LIBRARY_REF" "applications/quick-panel:$QUICKPANEL_REF"; do
+          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF" "pn2xr:$PN2XR_REF" "applications/library:$LIBRARY_REF" "applications/quick-panel:$QUICKPANEL_REF" "applications/settings:$SETTINGS_REF"; do
             r=${pair%%:*}; ref=${pair##*:}
             git clone --depth 1 -b "$ref" "https://gitlab.com/neosalsa/$r.git" "$PN2_ROOT/$(basename "$r")"
           done
