@@ -63,18 +63,42 @@ jobs:
             yes | sudo "$SDKM" "platforms;android-35"
           [ -d "$ANDROID_HOME/build-tools/35.0.0" ] || \
             yes | sudo "$SDKM" "build-tools;35.0.0"
+          # flutter 3.44 apps compile against android-36
+          [ -d "$ANDROID_HOME/platforms/android-36" ] || \
+            yes | sudo "$SDKM" "platforms;android-36"
           ls "$ANDROID_HOME/platforms"
           ls "$ANDROID_HOME/ndk"
           ls "$ANDROID_HOME/build-tools" | tail -3
+
+      - name: flutter toolchain
+        run: |
+          . manifest.env
+          curl -fsSL -o /tmp/flutter.tar.xz \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
+          tar -xJf /tmp/flutter.tar.xz -C "$HOME"
+          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
+          git config --global --add safe.directory "$HOME/flutter"
+          "$HOME/flutter/bin/flutter" config --no-analytics --android-sdk "$ANDROID_HOME"
+          "$HOME/flutter/bin/flutter" --version
+          # earlier sudo steps leave $HOME/.config root-owned, and AGP mints
+          # its debug keystore under .config/.android - own it and pre-make
+          # the keystore so the release build never needs to
+          sudo chown -R "$(id -u):$(id -g)" "$HOME/.config" 2>/dev/null || true
+          mkdir -p "$HOME/.config/.android"
+          [ -f "$HOME/.config/.android/debug.keystore" ] || \
+            keytool -genkeypair -v -keystore "$HOME/.config/.android/debug.keystore" \
+              -storepass android -alias androiddebugkey -keypass android \
+              -keyalg RSA -keysize 2048 -validity 10950 \
+              -dname "CN=Android Debug,O=Android,C=US" >/dev/null
 
       - name: clone source repos
         run: |
           set -e
           . manifest.env
           mkdir -p "$PN2_ROOT"/{notes,out}
-          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF" "pn2xr:$PN2XR_REF"; do
+          for pair in "tools:$TOOLS_REF" "overlay:$OVERLAY_REF" "shim:$SHIM_REF" "vrhome:$VRHOME_REF" "pn2xr:$PN2XR_REF" "applications/library:$LIBRARY_REF" "applications/quick-panel:$QUICKPANEL_REF"; do
             r=${pair%%:*}; ref=${pair##*:}
-            git clone --depth 1 -b "$ref" "https://gitlab.com/neosalsa/$r.git" "$PN2_ROOT/$r"
+            git clone --depth 1 -b "$ref" "https://gitlab.com/neosalsa/$r.git" "$PN2_ROOT/$(basename "$r")"
           done
 
       - name: input packages
@@ -86,6 +110,14 @@ jobs:
 
       - name: build images
         run: bash scripts/build-image.sh
+
+      - name: build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: /home/runner/pn2/notes/
+          retention-days: 7
 
       - name: package outputs
         run: bash scripts/package-outputs.sh dist-out
