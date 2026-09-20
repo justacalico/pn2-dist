@@ -4,6 +4,10 @@
 #   github-dispatch      manual pipelines trigger the build and stream its log
 #   github-release-sync  copies the GitHub release back into a GitLab release
 #                        backed by the package registry - assets never expire
+default:
+  tags:
+    - linux-truenas
+
 stages:
   - sync
   - build
